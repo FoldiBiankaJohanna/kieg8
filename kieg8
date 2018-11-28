@@ -1,0 +1,164 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace kieg8
+{
+    
+    class BankSzamla
+    {
+        // az adaattagoknak privát a láthatósága
+        //private string szamlaszam;
+        string szamlaszam;
+        //private string nev;
+        string nev;
+        //private double egyenleg;
+        double egyenleg;
+
+        static Random r = new Random();
+
+        
+        //konstruktorok (példányosításnál fut le)
+       public BankSzamla(string szamlaszam, string nev, double egyenleg)
+       {
+            this.Szamlaszam = szamlaszam;// this.Szamlaszam a belső értékre mutat,  szamlaszam a konstruktor paraméterére
+            this.Nev = nev;
+            this.Egyenleg = egyenleg;
+
+       }
+
+        public BankSzamla(string nev, double egyenleg)
+        {
+            this.Nev = nev;
+            this.Egyenleg = egyenleg;
+            this.Szamlaszam = RandomSzamlaszamGeneralas();
+            
+
+            
+        }
+
+        public BankSzamla(string szamlaszam, string nev)
+        {
+            this.Szamlaszam = szamlaszam;
+            this.Nev = nev;
+            this.Egyenleg = 0;
+
+        }
+
+        public BankSzamla(string nev)
+        {
+            this.Nev = nev;
+            this.Egyenleg = 0;
+            this.Szamlaszam = RandomSzamlaszamGeneralas();
+        }
+
+        public BankSzamla() : this("Anonymus") //a paraméter nélküli konstruktor meghívja az egy paraméteres konstruktort és paraméterként átadja az "Anonymus" stringet
+        {
+            
+        }
+
+        string RandomSzamlaszamGeneralas()
+        {
+            string szamlaszam="";
+            for (int i = 0; i < 17; i++)// 17 karakter
+            {
+                if (i==8) // a 9. karakter kötőjel
+                {
+                    szamlaszam += "-";
+                }
+                else // egyébként egy random egyjegyű szám
+                {
+                    szamlaszam += r.Next(0, 10); 
+                }
+            }
+            return szamlaszam;
+        }
+
+        // az adattagokat tulajdonságokon keresztül érjük el
+        public double Egyenleg
+        {
+            get { return this.egyenleg; } // get ág az olvashatóságot biztosítja
+            set { this.egyenleg = value; }// set ág az írhatóságot - value: láthatatlan paraméter, a set ágban mindig hivatkozhatunk rá
+        }
+
+        public string Szamlaszam
+        {
+            get { return this.szamlaszam; }
+            set
+            {
+                int i = 0;
+                bool megfelelo = true;
+                while (i < value.Length && megfelelo )
+                {
+                    if ((i==8 && value[i]!='-') || (i!=8 && !Char.IsDigit(value[i])) || value.Length!=17) // ha a 9. karakter nem kötőjel, vagy a többi karakter nem számjegy, vagy a string hossza nem 17, akkor nem megfelelo a formatum
+                    {
+                        megfelelo = false;
+                    }
+                    i++;
+                    
+                }
+
+                if (megfelelo) // ha megfelel a követelményeknek, akkor megtörténik az értékadás
+                {
+                    this.szamlaszam = value;
+                }
+            }
+        }
+
+        public string Nev
+        {
+            get { return this.nev; }
+            set
+            {
+                string[] nevek = value.Split(' ');// Split szétválasztja a kezdeti stringet egy string tömbbe szóköz szerint
+                int szamlalo = 0;
+                for (int i = 0; i < nevek.Length; i++)
+                {
+                    if (Char.IsUpper(nevek[i][0]))// ha az aktuális nevek[i] első karaktere nagybetű, akkor hozzáadunk egyet a számlálóhoz
+                    {
+                        szamlalo++;
+                    }
+                }
+
+                if (szamlalo >= 2)
+                {
+                    this.nev = value;
+                }
+            }
+
+
+        }
+
+        public string Megjelenit()
+        {
+            return "Név: " + this.nev + "\n" + "Számlaszám: " + this.szamlaszam + "\n" + "Egyenleg: " + this.egyenleg;
+        }
+
+        public bool Fizet(int osszeg)
+        {
+            if (this.Egyenleg>=osszeg)// csak akkor engedi meg ha van elég pénz az egyenlegünkön
+            {
+                Egyenleg -= osszeg;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public void Novel(int osszeg)
+        {
+            Egyenleg += osszeg;
+        }
+
+        public void Kamatozik(double szazalek)
+        {
+            Egyenleg += egyenleg * (szazalek / 100);
+        }
+      
+      
+    }
+}
